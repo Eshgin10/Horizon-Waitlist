@@ -5,47 +5,62 @@ const getElements = (selector) => document.querySelectorAll(selector);
 // Initialize when DOM is fully loaded
 document.addEventListener('DOMContentLoaded', () => {
     // Initialize all components
-    initCursorEffect();
     initCountdown();
     initScrollAnimations();
     initStickyHeader();
     initFaqAccordion();
     initFeatureCards();
+    initMobileNav();
 });
 
-// Cursor effect
-function initCursorEffect() {
-    const cursorFollower = getElement('.cursor-follower');
-    let mouseX = 0, mouseY = 0;
-    let cursorX = 0, cursorY = 0;
+// Mobile navigation
+function initMobileNav() {
+    const navToggle = getElement('.nav-toggle');
+    const nav = getElement('#primary-navigation');
 
-    // Show cursor follower after a slight delay
-    setTimeout(() => {
-        cursorFollower.style.opacity = '1';
-    }, 500);
+    if (!navToggle || !nav) return;
 
-    // Track mouse position
-    document.addEventListener('mousemove', (e) => {
-        mouseX = e.clientX;
-        mouseY = e.clientY;
+    navToggle.setAttribute('aria-expanded', 'false');
+
+    const updateNavVisibility = () => {
+        const expanded = navToggle.getAttribute('aria-expanded') === 'true';
+        const isMobile = window.innerWidth <= 768;
+
+        nav.setAttribute('aria-hidden', isMobile ? (!expanded).toString() : 'false');
+        document.body.classList.toggle('nav-open', expanded && isMobile);
+    };
+
+    const closeNav = ({ focusToggle = false } = {}) => {
+        navToggle.setAttribute('aria-expanded', 'false');
+        updateNavVisibility();
+        if (focusToggle) {
+            navToggle.focus();
+        }
+    };
+
+    navToggle.addEventListener('click', () => {
+        const expanded = navToggle.getAttribute('aria-expanded') === 'true';
+        navToggle.setAttribute('aria-expanded', (!expanded).toString());
+        updateNavVisibility();
     });
 
-    // Smooth animation effect
-    const animateCursor = () => {
-        // Smooth follow with easing
-        const easeFactor = 0.1;
-        cursorX += (mouseX - cursorX) * easeFactor;
-        cursorY += (mouseY - cursorY) * easeFactor;
-        
-        // Apply position
-        cursorFollower.style.left = `${cursorX}px`;
-        cursorFollower.style.top = `${cursorY}px`;
-        
-        // Continue animation
-        requestAnimationFrame(animateCursor);
-    };
-    
-    animateCursor();
+    nav.querySelectorAll('a').forEach(link => {
+        link.addEventListener('click', () => {
+            if (window.innerWidth <= 768) {
+                closeNav();
+            }
+        });
+    });
+
+    window.addEventListener('resize', updateNavVisibility);
+
+    document.addEventListener('keyup', (event) => {
+        if (event.key === 'Escape' && navToggle.getAttribute('aria-expanded') === 'true' && window.innerWidth <= 768) {
+            closeNav({ focusToggle: true });
+        }
+    });
+
+    updateNavVisibility();
 }
 
 // Countdown timer
@@ -190,22 +205,47 @@ function initFaqAccordion() {
 // Video player functionality
 document.addEventListener('DOMContentLoaded', () => {
     const videoContainer = getElement('.video-container');
-    
-    videoContainer.addEventListener('click', () => {
-        // Here you would typically create and insert an actual video element
-        // For this demo we just change the play button appearance
-        const playButton = videoContainer.querySelector('.play-button');
-        playButton.innerHTML = '<i class="fas fa-pause"></i>';
-        
-        // Add a "playing" class to the container
-        videoContainer.classList.add('playing');
-        
-        // In a real implementation, you would:
-        // 1. Create a video element
-        // 2. Set the source
-        // 3. Replace the placeholder image
-        // 4. Start playing the video
+    if (!videoContainer) return;
+
+    const videoElement = videoContainer.querySelector('.video-element');
+    const playButton = videoContainer.querySelector('.play-button');
+
+    if (!videoElement || !playButton) return;
+
+    videoElement.controls = false;
+
+    const updateUiForState = () => {
+        const isPlaying = !videoElement.paused && !videoElement.ended;
+
+        if (isPlaying) {
+            videoContainer.classList.add('playing');
+            playButton.innerHTML = '<i class="fas fa-pause"></i>';
+        } else {
+            videoContainer.classList.remove('playing');
+            playButton.innerHTML = '<i class="fas fa-play"></i>';
+            if (videoElement.ended) {
+                videoElement.currentTime = 0;
+            }
+        }
+
+        videoElement.controls = isPlaying;
+    };
+
+    playButton.addEventListener('click', (event) => {
+        event.stopPropagation();
+
+        if (videoElement.paused || videoElement.ended) {
+            videoElement.play();
+        } else {
+            videoElement.pause();
+        }
     });
+
+    videoElement.addEventListener('play', updateUiForState);
+    videoElement.addEventListener('pause', updateUiForState);
+    videoElement.addEventListener('ended', updateUiForState);
+
+    updateUiForState();
 });
 
 // Waitlist form submission

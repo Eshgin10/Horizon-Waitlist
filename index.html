@@ -11,14 +11,17 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div class="cursor-follower"></div>
-    
     <header>
         <div class="container">
             <div class="logo">
                 <span>Horizon</span>
             </div>
-            <nav>
+            <button class="nav-toggle" type="button" aria-label="Toggle navigation" aria-expanded="false" aria-controls="primary-navigation">
+                <span class="nav-toggle-bar"></span>
+                <span class="nav-toggle-bar"></span>
+                <span class="nav-toggle-bar"></span>
+            </button>
+            <nav id="primary-navigation" aria-hidden="true">
                 <ul>
                     <li><a href="#video">Demo</a></li>
                     <li><a href="#features">Features</a></li>
@@ -34,8 +37,8 @@
             <div class="status-badge">
                 <span class="dot"></span>Coming Soon
             </div>
-            <h1 class="headline">The future of productivity is here</h1>
-            <p class="subheadline">Streamline your workflow, boost collaboration, and accomplish more with our intelligent workspace platform.</p>
+            <h1 class="headline">Unleash the power of productivity with Horizon</h1>
+            <p class="subheadline">Join the waitlist and streamline your workflow, boost collaboration, and accomplish more with our intelligent workspace platform.</p>
             
             <div class="waitlist-form">
                 <input type="email" placeholder="Enter your email address" required>
@@ -68,7 +71,10 @@
         <div class="container">
             <div class="video-wrapper">
                 <div class="video-container">
-                    <img src="/mac1.jpg" alt="Video thumbnail" class="video-placeholder">
+                    <video class="video-element" preload="metadata" poster="/mac1.jpg">
+                        <source src="demovideo.mp4" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
                     <div class="play-button">
                         <i class="fas fa-play"></i>
                     </div>
